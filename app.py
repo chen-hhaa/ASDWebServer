@@ -3,13 +3,23 @@ from inference import inference
 
 app = Flask(__name__)
 
+ALLOWED_EXTENSIONS = {'wav'}
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         file = request.files['file']
-        filename = file.filename
-        file.save(filename)
+        if file and allowed_file(file.filename):
+            filename = file.filename
+            file.save(filename)
+        else:
+            return "File type not allowed"
 
         machine_type = request.values['machine_type']
         machine_id = request.values['machine_id']
